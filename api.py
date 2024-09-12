@@ -3,16 +3,16 @@ from flask import Flask, jsonify, request
 import getData
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
-
-
-
+from flask_cors import CORS  # 引入 CORS
 app = Flask(__name__)
+CORS(app)  # 設置全局 CORS
+
 @app.route('/api/getData', methods=['GET'])
 def get_data():
     # 用於傳入基因位置 request.args.get('position') 
     position= 'Chr1:1,489,366..1,499,365'
     # 暫時用於傳入sessionId request.args.get('position') 
-    sessionId='302EEB1F6096906C540B6C36553A1134'
+    sessionId='64C0E48F78CAEB1969AC53E7DE5A2B13'
     data, status_code = getData.getGeneData(position,sessionId)
     
     if status_code==200:
@@ -41,11 +41,11 @@ def get_data():
 def get_id():
     position = request.args.get('position')
     sessionId=request.args.get('sessionId')
-    data, status_code = getData.getLocusId(position,sessionId)
+    data, status_code= getData.getLocusId(position,sessionId)
     if status_code==200:
-        return data
+        return jsonify({"id": data})
     else:
-        return '取得 locus id 失敗'
+        return jsonify({"errormsg": '取得 locus id 失敗'})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

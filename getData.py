@@ -1,6 +1,6 @@
 import requests
 import json
-import urllib.parse
+from flask import Flask, jsonify
 
 headers = {
     'Accept-Language': 'zh-TW,zh;q=0.9',
@@ -20,33 +20,33 @@ headers = {
 
 
 
-def getSessionId():
-    # 取得jsessionid
-    session = requests.Session()
-    getCookieHeaders = {
-    'authority': 'www.googletagmanager.com',
-    'method': 'GET',
-    'path': '/gtag/js?id=G-S17ZS9ZPHD',
-    'scheme': 'https',
-    'Accept': '*/*',
-    'Accept-Encoding': 'gzip, deflate, br, zstd',
-    'Accept-Language': 'zh-TW,zh;q=0.9',
-    'Cache-Control': 'no-cache',
-    'Dnt': '1',
-    'Pragma': 'no-cache',
-    'Referer': 'https://www.arabidopsis.org/',
-    'Sec-Ch-Ua': '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
-    'Sec-Ch-Ua-Mobile': '?0',
-    'Sec-Ch-Ua-Platform': '"macOS"',
-    'Sec-Fetch-Dest': 'script',
-    'Sec-Fetch-Mode': 'no-cors',
-    'Sec-Fetch-Site': 'cross-site',
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
-    }
-    cookieResponse = session.get('https://www.arabidopsis.org/',headers=getCookieHeaders)
-    jsessionid = cookieResponse.cookies.get("JSESSIONID")
-    # print(jsessionid)
-    return jsessionid
+# def getSessionId():
+#     # 取得jsessionid
+#     session = requests.Session()
+#     getCookieHeaders = {
+#     'authority': 'www.googletagmanager.com',
+#     'method': 'GET',
+#     'path': '/gtag/js?id=G-S17ZS9ZPHD',
+#     'scheme': 'https',
+#     'Accept': '*/*',
+#     'Accept-Encoding': 'gzip, deflate, br, zstd',
+#     'Accept-Language': 'zh-TW,zh;q=0.9',
+#     'Cache-Control': 'no-cache',
+#     'Dnt': '1',
+#     'Pragma': 'no-cache',
+#     'Referer': 'https://www.arabidopsis.org/',
+#     'Sec-Ch-Ua': '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+#     'Sec-Ch-Ua-Mobile': '?0',
+#     'Sec-Ch-Ua-Platform': '"macOS"',
+#     'Sec-Fetch-Dest': 'script',
+#     'Sec-Fetch-Mode': 'no-cors',
+#     'Sec-Fetch-Site': 'cross-site',
+#     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+#     }
+#     cookieResponse = session.get('https://www.arabidopsis.org/',headers=getCookieHeaders)
+#     jsessionid = cookieResponse.cookies.get("JSESSIONID")
+#     # print(jsessionid)
+#     return jsessionid
 
 def getLocusId(position,sessionId):
     # 取得locus資料
@@ -77,9 +77,9 @@ def getLocusId(position,sessionId):
         parsed_data = json.loads(response.text)
     # 提取 locus 的值
         locus_id = parsed_data["track_keys"]["Locus"]
-        return locus_id
+        return locus_id, response.status_code
     else:
-        return ("無法取得locusId")
+        return ("無法取得locusId", response.status_code)
 
 def getGeneData(position,sessionId):
     
@@ -105,10 +105,8 @@ def getGeneData(position,sessionId):
     files=files
 )
     if response.status_code == 200:
-        print(response.text)
         return response.text, response.status_code
     else:
-        # print("請求失敗，狀態:", response.status_code)
         return ("請求失敗，狀態:"), response.status_code
     
 
