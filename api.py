@@ -7,14 +7,11 @@ from flask_cors import CORS  # 引入 CORS
 app = Flask(__name__)
 CORS(app)  # 設置全局 CORS
 
-@app.route('/api/getData', methods=['GET'])
-def get_data():
-    # 用於傳入基因位置 request.args.get('position') 
-    position= 'Chr1:1,489,366..1,499,365'
-    # 暫時用於傳入sessionId request.args.get('position') 
-    sessionId='64C0E48F78CAEB1969AC53E7DE5A2B13'
-    data, status_code = getData.getGeneData(position,sessionId)
-    
+@app.route('/api/getId', methods=['GET'])
+def get_id():
+    position = request.args.get('position')
+    sessionId=request.args.get('sessionId')
+    data, status_code= getData.getLocusId(position,sessionId)
     if status_code==200:
         context=data
         # 提取所有 <area> 標籤中的資料
@@ -30,20 +27,9 @@ def get_data():
             query_params = parse_qs(parsed_url.query)
             name = query_params.get("name", [None])[0]
             area_data.append(name)
-        return jsonify({"status": "成功", "data": area_data}), 200
-
-            
-        
-    else:   
-        return jsonify({"status": "失敗", "data": data}), status_code
-
-@app.route('/api/getId', methods=['GET'])
-def get_id():
-    position = request.args.get('position')
-    sessionId=request.args.get('sessionId')
-    data, status_code= getData.getLocusId(position,sessionId)
-    if status_code==200:
-        return jsonify({"id": data})
+        # 將 area_data 轉換為逗號分隔的字串
+        area_data_string = ','.join(area_data)
+        return jsonify({"status": "成功", "data": area_data_string}), 200
     else:
         return jsonify({"errormsg": '取得 locus id 失敗'})
 
