@@ -1,5 +1,6 @@
 import requests
 import json
+import re
 from flask import Flask, jsonify
 
 headers = {
@@ -89,5 +90,19 @@ def getGeneData(locusId):
     else:
         return ("請求失敗，狀態:"), response.status_code
     
+def getRange(str):
+    print("str",str)
+    match = re.search(r'Chr\d+:(\d+)\.\.(\d+)',str)
+    if match:
+            start = match.group(1)
+            end = match.group(2)
+            return start, end
+    else:
+            print("未找到數字範圍")
+    
+def rangeOverlap(start_a, end_a, start_b, end_b):
+    #檢查是否重疊
+    return start_a <= end_b and start_b <= end_a
+
 
 
